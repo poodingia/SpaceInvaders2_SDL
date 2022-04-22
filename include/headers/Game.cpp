@@ -3,7 +3,6 @@
 void Game::start()
 {
 
-
     initSDL("Game v1.0");
     if (!load())
     {
@@ -16,9 +15,7 @@ void Game::start()
         playMusic();
         SDL_Delay(100);
         Player player;
-        Enemies enemies;
-
-        int number = 0;
+        Enemies enemies(level);
         while (isPlaying)
         {
 
@@ -36,6 +33,7 @@ void Game::start()
                     player.shoot(playerLaser);
                 }
             }
+            shot = playerLaser.size();
             enemies.moveEnemeies();
             enemyshoot(enemies.armies);
             moveLaser();
@@ -45,6 +43,8 @@ void Game::start()
             drawLaser();
             enemies.loadImage();
             player.loadImage();
+            displayText("Level: " + std::to_string(level), 20, 20);
+            displayText("Bullet shot: " + std::to_string(shot), SCREEN_WIDTH - 250, 20);
             SDL_RenderPresent(g_renderer);
             if (gameOver(enemies.armies, player))
             {
@@ -62,12 +62,26 @@ void Game::start()
         }
         if (isRunning)
         {
-            SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
-            SDL_RenderClear(g_renderer);
-            loadImage();
-            isRunning = isContinue(&isPlaying);
-            enemiesLaser.clear();
-            playerLaser.clear();
+            if (win)
+            {
+                level++;
+                if (level >= 4)
+                    level = 4;
+                isPlaying = true;
+                enemiesLaser.clear();
+                playerLaser.clear();
+            }
+            else
+            {
+                level = 1;
+                shot = 0;
+                SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+                SDL_RenderClear(g_renderer);
+                loadImage();
+                isRunning = isContinue(&isPlaying);
+                enemiesLaser.clear();
+                playerLaser.clear();
+            }
         }
     }
 
@@ -157,16 +171,21 @@ bool Game::gameOver(std::vector<std::vector<Enemy>> &enemies, Player player)
         {
             if (i[0].pos.y + i[0].pos.h >= SCREEN_HEIGHT * 3 / 4)
             {
+                win = false;
                 return true;
             }
         }
     }
     if (left == 0)
+    {
+        win = true;
         return true;
+    }
     for (int i = 0; i < enemiesLaser.size(); i++)
     {
         if (SDL_HasIntersection(&enemiesLaser[i].pos, player.getPos()) == SDL_TRUE)
         {
+            win = false;
             return true;
         }
     }
@@ -209,11 +228,11 @@ void Game::init()
     Uint32 start = SDL_GetTicks();
     SDL_RenderCopy(g_renderer, startScreen, NULL, NULL);
     SDL_RenderPresent(g_renderer);
-    while (SDL_WaitEvent(&g_event))
+    while (true)
     {
-        Uint32 end = SDL_GetTicks() - start;
-        if(end == 500) return;
-        if(g_event.type == SDL_QUIT) 
+        if (SDL_WaitEvent(&g_event) != 0 && (g_event.type == SDL_KEYDOWN))
+            return;
+        if (g_event.type == SDL_QUIT)
         {
             isRunning = false;
             return;

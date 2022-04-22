@@ -23,7 +23,9 @@ public:
     SDL_Texture *background;
     SDL_Texture *explosion;
 
-    bool isRunning = true, isPlaying = true;
+    bool isRunning = true, isPlaying = true, win = false;
+    int level = 1;
+    int shot = 0;
     const Uint32 FPS = 30;
     const Uint32 frameDelay = 1000 / FPS;
 };

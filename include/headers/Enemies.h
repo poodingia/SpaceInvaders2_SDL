@@ -17,12 +17,11 @@ struct Enemy
 class Enemies
 {
 public:
-    Enemies();
+    Enemies( int enemiesRow);
     void moveEnemeies();
     bool load(std::string path);
     void loadImage();
 
-    int enemiesRow = 4;
     int enemiesColumn = 8;
     int downSpeed = 60;
 

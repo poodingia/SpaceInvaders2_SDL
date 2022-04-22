@@ -1,6 +1,6 @@
 #include "Enemies.h"
 
-Enemies::Enemies()
+Enemies::Enemies( int enemiesRow)
 {
     int spawnX = 100;
     int spawnY = 100;
@@ -30,7 +30,13 @@ Enemies::Enemies()
 void Enemies::moveEnemeies()
 {
     bool switchDirection = false;
-    switch (armies[0][0].direction)
+    int moveDirection;
+    for (auto &i : armies)
+    {
+        if(i.size() > 0)
+            moveDirection = i[0].direction;
+    }
+    switch (moveDirection)
     {
     case LEFT:
         for (auto &i : armies)
@@ -54,10 +60,12 @@ void Enemies::moveEnemeies()
         if (i[0].pos.x <= 40)
         {
             switchDirection = true;
+            break;
         }
         if (i[i.size() - 1].pos.x >= SCREEN_WIDTH - 40 - 40)
         {
             switchDirection = true;
+            break;
         }
     }
     if (switchDirection)
