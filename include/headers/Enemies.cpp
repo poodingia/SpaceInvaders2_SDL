@@ -1,6 +1,6 @@
 #include "Enemies.h"
 
-Enemies::Enemies( int enemiesRow)
+Enemies::Enemies(int enemiesRow)
 {
     int spawnX = 100;
     int spawnY = 100;
@@ -33,7 +33,7 @@ void Enemies::moveEnemeies()
     int moveDirection;
     for (auto &i : armies)
     {
-        if(i.size() > 0)
+        if (i.size() > 0)
             moveDirection = i[0].direction;
     }
     switch (moveDirection)
@@ -54,21 +54,13 @@ void Enemies::moveEnemeies()
         }
         break;
     }
-
-    for (auto &i : armies)
+    totalMove += moveSpeed;
+    if (totalMove >= 400)
     {
-        if (i[0].pos.x <= 40)
-        {
-            switchDirection = true;
-            break;
-        }
-        if (i[i.size() - 1].pos.x >= SCREEN_WIDTH - 40 - 40)
-        {
-            switchDirection = true;
-            break;
-        }
+        switchDirection = true;
     }
     if (switchDirection)
+    {
         for (auto &i : armies)
         {
             for (auto &y : i)
@@ -77,6 +69,8 @@ void Enemies::moveEnemeies()
                 y.pos.y += downSpeed;
             }
         }
+        totalMove = 0;
+    }
 }
 
 bool Enemies::load(std::string path)

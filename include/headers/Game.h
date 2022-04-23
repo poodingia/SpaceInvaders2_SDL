@@ -26,6 +26,9 @@ public:
     bool isRunning = true, isPlaying = true, win = false;
     int level = 1;
     int shot = 0;
+    int hit = 0;
+    float hitRate;
+    
     const Uint32 FPS = 30;
     const Uint32 frameDelay = 1000 / FPS;
 };

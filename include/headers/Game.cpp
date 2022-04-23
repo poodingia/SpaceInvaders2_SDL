@@ -32,8 +32,11 @@ void Game::start()
                     player.movement();
                     player.shoot(playerLaser);
                 }
+                if (g_event.key.keysym.sym == SDLK_SPACE && g_event.type == SDL_KEYDOWN)
+                {
+                    shot++;
+                }
             }
-            shot = playerLaser.size();
             enemies.moveEnemeies();
             enemyshoot(enemies.armies);
             moveLaser();
@@ -44,10 +47,11 @@ void Game::start()
             enemies.loadImage();
             player.loadImage();
             displayText("Level: " + std::to_string(level), 20, 20);
-            displayText("Bullet shot: " + std::to_string(shot), SCREEN_WIDTH - 250, 20);
+            displayText("Hit rate: " + std::to_string((int) hitRate) + "%", SCREEN_WIDTH - 250, 20);
             SDL_RenderPresent(g_renderer);
             if (gameOver(enemies.armies, player))
             {
+                Mix_PauseMusic();
                 SDL_Delay(500);
                 isPlaying = false;
             }
@@ -75,6 +79,8 @@ void Game::start()
             {
                 level = 1;
                 shot = 0;
+                hit = 0;
+                hitRate = 0;
                 SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
                 SDL_RenderClear(g_renderer);
                 loadImage();
@@ -120,6 +126,10 @@ void Game::drawLaser()
 
 void Game::checkCollision(std::vector<std::vector<Enemy>> &enemies)
 {
+    if (shot > 0)
+        hitRate = (float)(hit * 100) / shot;
+    else
+        shot = 0;
     for (int i = 0; i < playerLaser.size(); i++)
     {
         for (int y = 0; y < enemies.size(); y++)
@@ -127,6 +137,7 @@ void Game::checkCollision(std::vector<std::vector<Enemy>> &enemies)
             for (int j = 0; j < enemies[y].size(); j++)
                 if (SDL_HasIntersection(&playerLaser[i].pos, &enemies[y][j].pos) == SDL_TRUE)
                 {
+                    hit++;
                     SDL_Rect temp = enemies[y][j].pos;
                     playerLaser.erase(playerLaser.begin() + i);
                     enemies[y].erase(enemies[y].begin() + j);
@@ -186,6 +197,7 @@ bool Game::gameOver(std::vector<std::vector<Enemy>> &enemies, Player player)
         if (SDL_HasIntersection(&enemiesLaser[i].pos, player.getPos()) == SDL_TRUE)
         {
             win = false;
+            playSound("music/gameover.wav");    
             return true;
         }
     }
@@ -225,12 +237,12 @@ void Game::loadImage()
 
 void Game::init()
 {
-    Uint32 start = SDL_GetTicks();
     SDL_RenderCopy(g_renderer, startScreen, NULL, NULL);
+    displayText("PRESS SPACE BAR TO BEGIN", 380, 750);
     SDL_RenderPresent(g_renderer);
     while (true)
     {
-        if (SDL_WaitEvent(&g_event) != 0 && (g_event.type == SDL_KEYDOWN))
+        if (SDL_WaitEvent(&g_event) != 0 && (g_event.type == SDL_KEYDOWN) && g_event.key.keysym.sym == SDLK_SPACE)
             return;
         if (g_event.type == SDL_QUIT)
         {

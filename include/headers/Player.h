@@ -27,5 +27,5 @@ private:
     const int START_X = SCREEN_WIDTH / 2;
     const int START_Y = SCREEN_HEIGHT / 4 * 3;
 
-    const int SPEED = 30;
+    const int SPEED = 60;
 };
