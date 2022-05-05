@@ -17,7 +17,6 @@ void initSDL(std::string WINDOW_TILTE)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
         logSDLError(std::cout, "SDL_Init", true);
-
     g_window = SDL_CreateWindow(WINDOW_TILTE.c_str(), SDL_WINDOWPOS_CENTERED,
                                 SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     // window = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_CENTERED,
@@ -57,6 +56,7 @@ void initSDL(std::string WINDOW_TILTE)
     SDL_FreeSurface(g_icon);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
     SDL_RenderSetLogicalSize(g_renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
@@ -156,5 +156,3 @@ bool isContinue(bool *isPlaying)
     }
     return *isPlaying;
 }
-
-

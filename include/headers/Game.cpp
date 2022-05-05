@@ -27,7 +27,7 @@ void Game::start()
                     isPlaying = false;
                     isRunning = false;
                 }
-                if (g_event.type == SDL_KEYDOWN)
+                if (g_event.type == SDL_KEYDOWN && g_event.key.repeat == 0)
                 {
                     player.movement();
                     player.shoot(playerLaser);
@@ -43,11 +43,12 @@ void Game::start()
             checkCollision(enemies.armies);
 
             loadImage();
+            SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
             drawLaser();
             enemies.loadImage();
             player.loadImage();
             displayText("Level: " + std::to_string(level), 20, 20);
-            displayText("Hit rate: " + std::to_string((int) hitRate) + "%", SCREEN_WIDTH - 250, 20);
+            displayText("Hit rate: " + std::to_string((int)hitRate) + "%", SCREEN_WIDTH - 250, 20);
             SDL_RenderPresent(g_renderer);
             if (gameOver(enemies.armies, player))
             {
@@ -77,6 +78,7 @@ void Game::start()
             }
             else
             {
+                save();
                 level = 1;
                 shot = 0;
                 hit = 0;
@@ -90,8 +92,7 @@ void Game::start()
             }
         }
     }
-
-    quitSDL();
+    quit();
 }
 
 void Game::moveLaser()
@@ -197,7 +198,7 @@ bool Game::gameOver(std::vector<std::vector<Enemy>> &enemies, Player player)
         if (SDL_HasIntersection(&enemiesLaser[i].pos, player.getPos()) == SDL_TRUE)
         {
             win = false;
-            playSound("music/gameover.wav");    
+            playSound("music/gameover.wav");
             return true;
         }
     }
@@ -232,7 +233,6 @@ void Game::loadImage()
     SDL_RenderClear(g_renderer);
     SDL_RenderCopy(g_renderer, background, NULL, NULL);
     SDL_SetRenderDrawColor(g_renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
 }
 
 void Game::init()
@@ -251,4 +251,106 @@ void Game::init()
         }
     }
     return;
+}
+
+void Game::quit()
+{
+    SDL_DestroyTexture(startScreen);
+    SDL_DestroyTexture(background);
+    SDL_DestroyTexture(explosion);
+    quitSDL();
+}
+
+void Game::save()
+{
+
+    std::ofstream outfile;
+    outfile.open("content/score.txt", std::fstream::app);
+    SDL_StartTextInput();
+    std::string text = "";
+
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(g_renderer);
+    loadImage();
+    displayText(text, 200, 200);
+    SDL_RenderPresent(g_renderer);
+    while (true)
+    {
+        SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(g_renderer);
+        loadImage();
+        displayText(text, 200, 200);
+        SDL_RenderPresent(g_renderer);
+        if (SDL_WaitEvent(&g_event) != 0)
+        {
+
+            if (g_event.type == SDL_QUIT)
+            {
+                isRunning = false;
+                quit();
+                return;
+            }
+            if (g_event.type == SDL_TEXTINPUT && *g_event.text.text != ' ')
+            {
+                text += g_event.text.text;
+            }
+            else if (g_event.type == SDL_KEYDOWN)
+            {
+                if (g_event.key.keysym.sym == SDLK_RETURN)
+                {
+                    outfile << text << ' ' << hit << "\n";
+                    outfile.close();
+                    break;
+                }
+            }
+        }
+    }
+    std::ifstream infile("content/score.txt");
+    std::string name;
+    int hit, y = 200;
+    while (true)
+    {
+        y = 200;
+        SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(g_renderer);
+        loadImage();
+        if (infile.is_open())
+        {
+            while (infile >> name)
+            {
+                // std::cout << 1;
+                // infile >> name;
+                infile >> hit;
+                scoreBoard.insert({name, hit});
+                std::cout << name<<" "<<hit<<"\n";
+            }
+        }
+        infile.close();
+        displayText("NAME", 200, y);
+        displayText("HIT", 1000, y);
+        y += 100;
+        for (auto &[key, val] : scoreBoard)
+        {
+            y += 40;
+            displayText(key, 200, y);
+            displayText(std::to_string(val), 1000, y);
+        }
+        SDL_RenderPresent(g_renderer);
+        if (SDL_WaitEvent(&g_event) != 0)
+        {
+            if (g_event.type == SDL_QUIT)
+            {
+                isRunning = false;
+                quit();
+                return;
+            }
+            if (g_event.type == SDL_KEYDOWN)
+            {
+                if (g_event.key.keysym.sym == SDLK_RETURN)
+                {
+                    break;
+                }
+            }
+        }
+    }
 }

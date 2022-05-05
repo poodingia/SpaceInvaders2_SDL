@@ -8,6 +8,7 @@ public:
     void start();
     void init();
     void quit();
+    void save();
     void moveLaser();
     void drawLaser();
     bool load();
@@ -18,6 +19,7 @@ public:
 
     std::vector<Laser> playerLaser;
     std::vector<Laser> enemiesLaser;
+    std::map <std::string, int> scoreBoard;
 
     SDL_Texture *startScreen;
     SDL_Texture *background;
@@ -31,4 +33,5 @@ public:
     
     const Uint32 FPS = 30;
     const Uint32 frameDelay = 1000 / FPS;
+    
 };
