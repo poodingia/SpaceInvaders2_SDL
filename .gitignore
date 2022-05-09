@@ -1,4 +1,5 @@
 \.vscode
+\content
 *.a
 *.dll
 *.exe

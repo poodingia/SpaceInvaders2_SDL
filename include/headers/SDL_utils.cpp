@@ -97,6 +97,19 @@ void displayText(std::string sentence, int x, int y)
     SDL_RenderCopy(g_renderer, text, NULL, &textRect);
 }
 
+void displayTextColor(std::string sentence, int x, int y, Uint8 red, Uint8 green, Uint8 blue)
+{
+    TTF_Font *font = TTF_OpenFont("fonts/CCOverbyteOn.ttf", 35);
+    SDL_Color color = {red, green, blue, 255};
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, sentence.c_str(), color);
+    SDL_Texture *text = SDL_CreateTextureFromSurface(g_renderer, textSurface);
+    SDL_Rect textRect;
+    textRect.x = x;
+    textRect.y = y;
+    SDL_QueryTexture(text, NULL, NULL, &textRect.w, &textRect.h);
+    SDL_RenderCopy(g_renderer, text, NULL, &textRect);
+}
+
 void playMusic()
 {
     Mix_Music *music = Mix_LoadMUS("music/background.mp3");

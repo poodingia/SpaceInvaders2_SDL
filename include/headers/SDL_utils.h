@@ -41,6 +41,8 @@ void waitUntilKeyPressed();
 
 void displayText(std::string sentence, int x, int y);
 
+void displayTextColor(std::string sentence, int x, int y, Uint8 red, Uint8 green, Uint8 blue);
+
 void playMusic();
 
 void playSound(std::string path);

@@ -7,6 +7,7 @@ Player::Player()
     {
         logSDLError(std::cout, "Player texture", true);
     }
+    mode = 0;
 }
 
 bool Player::load(std::string path)
@@ -49,12 +50,37 @@ void Player::movement()
 
 void Player::shoot(std::vector<Laser> &playerLaser)
 {
-    int bulletSpeed = 10;
     if (g_event.key.keysym.sym == SDLK_SPACE && g_event.type == SDL_KEYDOWN)
     {
         SDL_Rect temp = {pos.x + SIZE_WIDTH / 2, pos.y + 20, 5, 20};
         Laser bullet(temp, bulletSpeed, UP);
+        switch (mode)
+        {
+        case 1:
+            playerLaser.push_back(bullet);
+            break;
+        case 2:
+            bulletSpeed++;
+            break;
+        case 3:
+            pos.h = 30;
+            pos.w = 30;
+            break;
+        case 4:
+            SPEED += 2;
+            break;
+        default:
+            break;
+        }
         playerLaser.push_back(bullet);
         playSound("music/shoot.wav");
+    }
+}
+
+void Player::move(std::vector<Laser> &playerLaser)
+{
+    for (auto &i : playerLaser)
+    {
+        i.pos.y -= i.movementSpeed;
     }
 }

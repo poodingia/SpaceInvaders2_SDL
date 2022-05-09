@@ -2,62 +2,77 @@
 
 Enemies::Enemies(int enemiesRow)
 {
-    int spawnX = 100;
-    int spawnY = 100;
-    int enemyWidth = 40;
-    int enemyHeight = 40;
-    for (int j = 0; j < enemiesRow; j++)
-    {
-        spawnX = 100;
-        std::vector<Enemy> army;
-        for (int i = 0; i < enemiesColumn; i++)
-        {
-            SDL_Rect temp = {spawnX, spawnY, enemyWidth, enemyHeight};
-            Enemy enemy(temp, 10, RIGHT);
-            army.push_back(enemy);
-            spawnX += 100;
-        }
-        spawnY += 50;
-        armies.push_back(army);
-    }
-
+    add(1);
     if (!load("res/Enemies.png"))
     {
         logSDLError(std::cout, "Enemies texture", true);
     }
 }
 
+void Enemies::add(int enemiesRow)
+{
+    int spawnX, spawnY = 0, enemyWidth = 40, enemyHeight = 40;
+    for (int j = 0; j < enemiesRow; j++)
+    {
+        if (moveDirection == RIGHT)
+            spawnX = 100;
+        else
+            spawnX = 500;
+        std::vector<Enemy> army;
+        for (int i = 0; i < enemiesColumn; i++)
+        {
+            SDL_Rect temp = {spawnX, spawnY, enemyWidth, enemyHeight};
+            Enemy enemy(temp, moveSpeed, moveDirection);
+            army.push_back(enemy);
+            spawnX += 100;
+        }
+        spawnY += 50;
+        armies.push_back(army);
+    }
+}
+
+void Enemies::upgrade(int &level)
+{
+    if(steps >= changes || left == 0 && level != 1)
+    {
+        steps = 0;
+        level++;
+        moveDirection = 2 - moveDirection;
+        if(level > 3)
+        {
+            moveSpeed++;
+            level = 1;
+        }
+        add(level);
+    }
+}
+
 void Enemies::moveEnemeies()
 {
     bool switchDirection = false;
-    int moveDirection;
+
     for (auto &i : armies)
     {
-        if (i.size() > 0)
-            moveDirection = i[0].direction;
-    }
-    switch (moveDirection)
-    {
-    case LEFT:
-        for (auto &i : armies)
+        for (auto &y : i)
         {
-            for (auto &y : i)
+            left++;
+            switch (y.direction)
+            {
+            case LEFT:
                 y.pos.x -= y.movementSpeed;
-        }
-        break;
+                break;
 
-    case RIGHT:
-        for (auto &i : armies)
-        {
-            for (auto &y : i)
+            case RIGHT:
                 y.pos.x += y.movementSpeed;
+                break;
+            }
         }
-        break;
     }
     totalMove += moveSpeed;
     if (totalMove >= 400)
     {
         switchDirection = true;
+        steps++;
     }
     if (switchDirection)
     {

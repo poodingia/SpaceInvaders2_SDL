@@ -12,5 +12,6 @@ struct Laser
     SDL_Rect pos;
     int movementSpeed; 
     int direction; 
+    int level = 1;
 };
 
