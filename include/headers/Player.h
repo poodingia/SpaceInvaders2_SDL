@@ -11,14 +11,15 @@ public:
     void loadImage();
 
     SDL_Rect *getPos() { return &pos; };
-    // int getPositionY() { return pos.y; }
-    // int getPositionX() { return pos.x; }
-    int getWidth() { return SIZE_WIDTH; }
-    int getHeight() { return SIZE_HEIGHT; }
     void move(std::vector<Laser> &playerLaser);
+    void setMode();
+    void reset();
 
-    std::string enhance[5] = {"Normal","Double Bullet", "Bullet Speed",
-                             "Smaller Size", "Ship Speed"};
+    std::string enhance[5] = {"Normal",
+                              "Double Bullet", 
+                              "Bullet Speed",
+                              "Smaller Size", 
+                              "Ship Speed"};
 
     int mode;
 private:

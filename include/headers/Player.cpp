@@ -53,22 +53,15 @@ void Player::shoot(std::vector<Laser> &playerLaser)
     if (g_event.key.keysym.sym == SDLK_SPACE && g_event.type == SDL_KEYDOWN)
     {
         SDL_Rect temp = {pos.x + SIZE_WIDTH / 2, pos.y + 20, 5, 20};
-        Laser bullet(temp, bulletSpeed, UP);
+        Laser bullet(temp, bulletSpeed, UP, 1);
         switch (mode)
         {
         case 1:
+            bullet.mode = 2;
             playerLaser.push_back(bullet);
             break;
         case 2:
-            bulletSpeed++;
-            break;
-        case 3:
-            pos.h = 30;
-            pos.w = 30;
-            break;
-        case 4:
-            SPEED += 2;
-            break;
+            bullet.mode = 3;
         default:
             break;
         }
@@ -82,5 +75,32 @@ void Player::move(std::vector<Laser> &playerLaser)
     for (auto &i : playerLaser)
     {
         i.pos.y -= i.movementSpeed;
+    }
+}
+
+void Player::reset()
+{
+    pos.h = SIZE_HEIGHT;
+    pos.w = SIZE_WIDTH;
+    bulletSpeed = 10;
+    SPEED = 80;
+}
+
+void Player::setMode()
+{
+    switch (mode)
+    {
+    case 2:
+        bulletSpeed+= 10;
+        break;
+    case 4:
+        SPEED += 20; 
+        break;
+    case 3:
+        pos.h = 20;
+        pos.w = 20;
+        break;
+    default:
+        break;
     }
 }

@@ -10,10 +10,10 @@ void Game::start()
         return;
     }
     init();
-    Player player;
     boxes.load("res/box.png");
     while (isRunning)
     {
+        Player player;
         playMusic();
         SDL_Delay(100);
         Enemies enemies(level);
@@ -21,6 +21,8 @@ void Game::start()
         {
 
             Uint32 starts = SDL_GetTicks();
+            player.reset();
+            player.setMode();
             while (SDL_PollEvent(&g_event))
             {
                 if (g_event.type == SDL_QUIT)
@@ -52,13 +54,14 @@ void Game::start()
             loadImage();
             SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
             drawLaser();
+            boxes.loadImage();
             enemies.loadImage();
             player.loadImage();
-            boxes.loadImage();
-            displayText("Hit Rate: " + std::to_string((int)hitRate)+ " %" , SCREEN_WIDTH - 250, 700);
+            displayText("Hit Rate: " + std::to_string((int)hitRate) + " %", SCREEN_WIDTH - 250, 700);
             displayText("Score: " + std::to_string((int)hit), 20, 700);
-            displayTextColor(player.enhance[player.mode], 500, 800, 255, 0, 0);
+            displayTextColor(player.enhance[player.mode], 590, 800, 255, 255, 0);
             SDL_RenderPresent(g_renderer);
+
             if (gameOver(enemies.armies, player))
             {
                 Mix_PauseMusic();
@@ -82,7 +85,6 @@ void Game::start()
 void Game::moveLaser()
 {
 
-
     for (auto &i : enemiesLaser)
     {
         i.pos.y += i.movementSpeed;
@@ -94,7 +96,20 @@ void Game::drawLaser()
     for (auto &i : playerLaser)
     {
         SDL_Rect temp = i.pos;
-        SDL_SetRenderDrawColor(g_renderer, 255, 255, 0, SDL_ALPHA_OPAQUE);
+        switch (i.mode)
+        {
+        case 1:
+            SDL_SetRenderDrawColor(g_renderer, 255, 255, 0, SDL_ALPHA_OPAQUE);
+            break;
+        case 2:
+            SDL_SetRenderDrawColor(g_renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+            break;
+        case 3:
+            SDL_SetRenderDrawColor(g_renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+            break;
+        default:
+            break;
+        }
         SDL_RenderFillRect(g_renderer, &temp);
     }
 
@@ -160,7 +175,7 @@ void Game::enemyshoot(std::vector<std::vector<Enemy>> &enemies)
 
     if (startTime % 15 == 0)
     {
-        enemiesLaser.push_back(Laser({startXPos, startYPos, sizeWidth, sizeHeight}, movementSpeed, dir));
+        enemiesLaser.push_back(Laser({startXPos, startYPos, sizeWidth, sizeHeight}, movementSpeed, dir, 0));
     }
 }
 
@@ -313,7 +328,7 @@ void Game::save()
                 if (name.size() == 0)
                     continue;
                 infile >> hit;
-                scoreBoard.insert({name, hit});
+                scoreBoard.insert({hit, name});
             }
         }
         infile.close();
@@ -323,8 +338,8 @@ void Game::save()
         for (auto &[key, val] : scoreBoard)
         {
             y += 40;
-            displayText(key, 200, y);
-            displayText(std::to_string(val), 1000, y);
+            displayText(val, 200, y);
+            displayText(std::to_string(key), 1000, y);
         }
         SDL_RenderPresent(g_renderer);
         if (SDL_WaitEvent(&g_event) != 0)
@@ -359,14 +374,15 @@ void Game::reset()
     isRunning = isContinue(&isPlaying);
     enemiesLaser.clear();
     playerLaser.clear();
+    boxes.boxes.clear();
 }
 
 void Game::checkBox(Player &player)
 {
     int index = 0;
-    for(auto &i : boxes.boxes)
+    for (auto &i : boxes.boxes)
     {
-        if(SDL_HasIntersection(player.getPos(), &i.box) == SDL_TRUE)
+        if (SDL_HasIntersection(player.getPos(), &i.box) == SDL_TRUE)
         {
             srand(time(NULL));
             player.mode = rand() % 3 + 1;

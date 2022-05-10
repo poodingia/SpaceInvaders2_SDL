@@ -22,7 +22,7 @@ public:
 
     std::vector<Laser> playerLaser;
     std::vector<Laser> enemiesLaser;
-    std::multimap<std::string, int> scoreBoard;
+    std::multimap<int, std::string, std::greater<int> > scoreBoard;
 
     SDL_Texture *startScreen;
     SDL_Texture *background;
