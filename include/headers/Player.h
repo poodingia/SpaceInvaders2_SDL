@@ -33,5 +33,5 @@ private:
     const int START_Y = SCREEN_HEIGHT / 4 * 3;
 
     int bulletSpeed = 10;
-    int SPEED = 80;
+    int SPEED = 60;
 };

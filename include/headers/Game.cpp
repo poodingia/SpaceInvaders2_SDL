@@ -3,10 +3,10 @@
 void Game::start()
 {
 
-    initSDL("Game v1.0");
+    initSDL("Space Invaders Forever");
     if (!load())
     {
-        quitSDL();
+        quit();
         return;
     }
     init();
@@ -14,9 +14,9 @@ void Game::start()
     while (isRunning)
     {
         Player player;
-        playMusic();
         SDL_Delay(100);
         Enemies enemies(level);
+        playMusic();
         while (isPlaying)
         {
 
@@ -52,7 +52,6 @@ void Game::start()
             checkBox(player);
 
             loadImage();
-            SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
             drawLaser();
             boxes.loadImage();
             enemies.loadImage();
@@ -65,6 +64,7 @@ void Game::start()
             if (gameOver(enemies.armies, player))
             {
                 Mix_PauseMusic();
+                playSound("music/gameover.wav");
                 SDL_Delay(500);
                 isPlaying = false;
             }
@@ -76,8 +76,11 @@ void Game::start()
             }
             /************************************/
         }
+
         if (isRunning)
+        {
             reset();
+        }
     }
     quit();
 }
@@ -145,7 +148,7 @@ void Game::checkCollision(std::vector<std::vector<Enemy>> &enemies)
                     enemies[y].erase(enemies[y].begin() + j);
                     playSound("music/invaderkilled.wav");
                     SDL_RenderCopy(g_renderer, explosion, NULL, &temp);
-                    if (hit > 0 && hit % 8 == 0)
+                    if (hit > 0 && hit % 10 == 0)
                     {
                         boxes.add(temp);
                     }
@@ -196,7 +199,6 @@ bool Game::gameOver(std::vector<std::vector<Enemy>> &enemies, Player player)
     {
         if (SDL_HasIntersection(&enemiesLaser[i].pos, player.getPos()) == SDL_TRUE)
         {
-            playSound("music/gameover.wav");
             return true;
         }
     }
@@ -231,6 +233,7 @@ void Game::loadImage()
     SDL_RenderClear(g_renderer);
     SDL_RenderCopy(g_renderer, background, NULL, NULL);
     SDL_SetRenderDrawColor(g_renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
 }
 
 void Game::init()
@@ -266,12 +269,6 @@ void Game::save()
     outfile.open("content/score.txt", std::fstream::app);
     SDL_StartTextInput();
     std::string text = "";
-
-    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(g_renderer);
-    loadImage();
-    displayText(text, 200, 200);
-    SDL_RenderPresent(g_renderer);
     while (true)
     {
         SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -304,7 +301,7 @@ void Game::save()
                     break;
                 }
 
-                else if (g_event.key.keysym.sym == SDLK_BACKSPACE)
+                else if (g_event.key.keysym.sym == SDLK_BACKSPACE && text.size() > 0)
                 {
                     text.pop_back();
                 }
@@ -332,14 +329,15 @@ void Game::save()
             }
         }
         infile.close();
+        displayText("HIGHSCORE", 530, y - 100);
         displayText("NAME", 200, y);
         displayText("HIT", 1000, y);
         y += 100;
         for (auto &[key, val] : scoreBoard)
         {
-            y += 40;
             displayText(val, 200, y);
             displayText(std::to_string(key), 1000, y);
+            y += 40;
         }
         SDL_RenderPresent(g_renderer);
         if (SDL_WaitEvent(&g_event) != 0)
@@ -385,8 +383,9 @@ void Game::checkBox(Player &player)
         if (SDL_HasIntersection(player.getPos(), &i.box) == SDL_TRUE)
         {
             srand(time(NULL));
-            player.mode = rand() % 3 + 1;
+            player.mode = rand() % 4 + 1;
             boxes.boxes.erase(boxes.boxes.begin() + index);
+            playSound("music/bonus.wav");
         }
         index++;
     }
