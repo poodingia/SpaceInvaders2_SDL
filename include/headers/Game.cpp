@@ -52,6 +52,7 @@ void Game::start()
             checkBox(player);
 
             loadImage();
+            SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
             drawLaser();
             boxes.loadImage();
             enemies.loadImage();
@@ -233,7 +234,6 @@ void Game::loadImage()
     SDL_RenderClear(g_renderer);
     SDL_RenderCopy(g_renderer, background, NULL, NULL);
     SDL_SetRenderDrawColor(g_renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLine(g_renderer, 0, SCREEN_HEIGHT * 3 / 4, SCREEN_WIDTH, SCREEN_HEIGHT * 3 / 4);
 }
 
 void Game::init()
